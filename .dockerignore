@@ -1,0 +1,7 @@
+node_modules
+.vscode
+.nx
+dist
+.idea
+.git
+.env

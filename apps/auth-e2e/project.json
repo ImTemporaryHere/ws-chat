@@ -11,6 +11,11 @@
         "jestConfig": "apps/auth-e2e/jest.config.ts",
         "passWithNoTests": true
       },
+      "configurations": {
+        "staging": {
+          "targetName": "staging"
+        }
+      },
       "dependsOn": ["auth:build"]
     }
   }

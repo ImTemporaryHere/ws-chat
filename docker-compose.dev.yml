@@ -1,0 +1,77 @@
+# Use root/example as user/password credentials
+version: '3.9'
+
+services:
+
+  x-common-service: &common-service
+    build:
+      context: .
+      dockerfile: dev.Dockerfile
+    environment:
+      - DEV_PLATFORM=DOCKER
+    volumes:
+      - ./:/app
+      - nx-cache:/app/.nx
+      - node-modules:/app/node_modules
+      - dev-files:/app/dev-files
+      - ./envs:/app/envs
+    networks:
+      - my_network
+#    healthcheck:
+#      test: [ "CMD", "wget", "--spider", "-q", "http://localhost:3000/health" ]
+#      interval: 15s
+#      timeout: 10s
+#      retries: 5
+#      start_period: 5s
+
+
+
+  db:
+    image: mongo
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${DB_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - db_data:/data/db
+    ports:
+      - "27017:27017"
+    networks:
+      - my_network
+
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 30s         # Time between running the check
+      timeout: 5s           # Time to wait for the check to complete
+      retries: 3            # How many times to retry the check
+      start_period: 10s     # How long to wait before starting checks
+    volumes:
+      - redis-data:/data
+    networks:
+      - my_network
+
+  auth:
+    <<: *common-service
+    depends_on:
+      db:
+        condition: service_started
+      redis:
+          condition: service_healthy
+    command: npx nx serve auth
+#    command: tail -f /dev/null
+    ports:
+      - "3000:3000"
+
+volumes:
+  db_data:
+  node-modules:
+  redis-data:
+  dev-files:
+  nx-cache:
+networks:
+  my_network:
+    name: dev_network

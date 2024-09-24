@@ -14,6 +14,9 @@
         "runBuildTargetDependencies": false
       },
       "configurations": {
+        "local": {
+          "buildTarget": "auth:build:development"
+        },
         "development": {
           "buildTarget": "auth:build:development"
         },
