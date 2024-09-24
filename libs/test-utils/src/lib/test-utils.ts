@@ -1,9 +1,9 @@
-import {User} from "@./db-models";
+import { User } from '@ws-chat/db-models';
 
 export function getRandomUserData(): User {
   return {
     email: `asdf${Math.random()}@gmail.com`,
-    password: "aaaaaaaaaaaaaa",
+    password: 'aaaaaaaaaaaaaa',
   };
 }
 

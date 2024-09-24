@@ -16,8 +16,9 @@
     "baseUrl": ".",
     "esModuleInterop": true,
     "paths": {
-      "@./db-models": ["libs/db-models/src/index.ts"],
-      "@./test-utils": ["libs/test-utils/src/index.ts"]
+      "@ws-chat/db-models": ["libs/db-models/src/index.ts"],
+      "@ws-chat/test-utils": ["libs/test-utils/src/index.ts"],
+      "@ws-chat/auth": ["libs/auth/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

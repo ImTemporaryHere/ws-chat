@@ -1,4 +1,4 @@
-import { User } from '@./db-models';
+import { User } from '@ws-chat/db-models';
 import request from 'supertest';
 
 export async function testCreateUser(

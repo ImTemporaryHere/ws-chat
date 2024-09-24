@@ -2,9 +2,9 @@
 import { registerTsProject } from '@nx/js/src/internal';
 const cleanupRegisteredPaths = registerTsProject('./tsconfig.base.json');
 import { config } from 'dotenv';
-import { runApp } from '../../../chat-service/src/app';
 console.log('node-env', process.env.NODE_ENV);
-config({ path: `envs/chat-service/test/.env.${process.env.NODE_ENV}` });
+config({ path: `envs/users-service/test/.env.${process.env.NODE_ENV}` });
+import { runApp } from '../../../users-service/src/app';
 
 module.exports = async function () {
   globalThis.__stopServiceCallback__ = await runApp();

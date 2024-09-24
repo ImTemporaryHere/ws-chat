@@ -1,7 +1,7 @@
 {
-  "name": "chat-service",
+  "name": "users-service",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "apps/chat-service/src",
+  "sourceRoot": "apps/users-service/src",
   "projectType": "application",
   "tags": [],
   "targets": {
@@ -10,18 +10,18 @@
       "defaultConfiguration": "development",
       "dependsOn": ["build"],
       "options": {
-        "buildTarget": "chat-service:build",
+        "buildTarget": "users-service:build",
         "runBuildTargetDependencies": false
       },
       "configurations": {
         "local": {
-          "buildTarget": "chat-service:build:development"
+          "buildTarget": "users-service:build:development"
         },
         "development": {
-          "buildTarget": "chat-service:build:development"
+          "buildTarget": "users-service:build:development"
         },
         "production": {
-          "buildTarget": "chat-service:build:production"
+          "buildTarget": "users-service:build:production"
         }
       }
     }
