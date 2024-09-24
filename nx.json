@@ -35,7 +35,7 @@
       "options": {
         "targetName": "test"
       },
-      "exclude": ["apps/auth-e2e/**/*"]
+      "exclude": ["apps/auth-e2e/**/*", "apps/chat-service-e2e/**/*"]
     }
   ]
 }
