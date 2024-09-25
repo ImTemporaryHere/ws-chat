@@ -6,8 +6,8 @@ import {
 } from '@ws-chat/test-utils';
 import { testConnectToSocket } from './sockeio-server-auth.test';
 import { userSocketCreateGroup } from './group-create.test';
-import { TransportTopics } from '../../../chat-service/src/transports/transport-topics';
-import { GroupMessageInterface } from '../../../chat-service/src/groups/interfaces/group-message.interface';
+import { TransportTopics } from '../../../../chat-service/src/transports/transport-topics';
+import { GroupMessageInterface } from '../../../../chat-service/src/groups/interfaces/group-message.interface';
 
 const usersBaseUrl = `http://localhost:3000`;
 const baseUrl = `http://localhost:3001`;

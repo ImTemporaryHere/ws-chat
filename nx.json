@@ -35,7 +35,18 @@
       "options": {
         "targetName": "test"
       },
-      "exclude": ["apps/auth-e2e/**/*", "apps/chat-service-e2e/**/*"]
+      "exclude": [
+        "apps/auth-e2e/**/*",
+        "apps/chat-service-e2e/**/*",
+        "apps/load-test-e2e/**/*"
+      ]
     }
-  ]
+  ],
+  "targetDefaults": {
+    "@nx/esbuild:esbuild": {
+      "cache": true,
+      "dependsOn": ["^build"],
+      "inputs": ["production", "^production"]
+    }
+  }
 }
