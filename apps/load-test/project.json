@@ -5,16 +5,16 @@
   "projectType": "application",
   "tags": [],
   "targets": {
-    "build": {
+    "build-ws": {
       "executor": "@nx/esbuild:esbuild",
       "outputs": ["{options.outputPath}"],
       "defaultConfiguration": "production",
       "options": {
         "platform": "node",
-        "outputPath": "dist/apps/load-test",
+        "outputPath": "dist/apps/load-test/ws",
         "format": ["cjs"],
         "bundle": true,
-        "main": "apps/load-test/src/main.ts",
+        "main": "apps/load-test/src/ws/main.ts",
         "tsConfig": "apps/load-test/tsconfig.app.json",
         "assets": ["apps/load-test/src/assets"],
         "generatePackageJson": true,
@@ -37,12 +37,56 @@
         }
       }
     },
-    "start": {
+    "build-users": {
+      "executor": "@nx/esbuild:esbuild",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "platform": "node",
+        "outputPath": "dist/apps/load-test/create-users",
+        "format": ["cjs"],
+        "bundle": true,
+        "main": "apps/load-test/src/ws/create-user.ts",
+        "tsConfig": "apps/load-test/tsconfig.app.json",
+        "assets": ["apps/load-test/src/assets"],
+        "generatePackageJson": true,
+        "esbuildOptions": {
+          "sourcemap": true,
+          "outExtension": {
+            ".js": ".js"
+          }
+        }
+      },
+      "configurations": {
+        "development": {},
+        "production": {
+          "esbuildOptions": {
+            "sourcemap": false,
+            "outExtension": {
+              ".js": ".js"
+            }
+          }
+        }
+      }
+    },
+    "create-users": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "k6 run dist/apps/load-test/main.js"
+        "commands": [
+          {"command": "node dist/apps/load-test/create-users/create-user.js"}
+
+        ]
       },
-      "dependsOn": ["build"]
+      "dependsOn": ["build-users"]
+
+    },
+    "ws": {
+      "executor": "nx:run-commands",
+      "options": {
+        "envFile" : "dist/apps/load-test/create-users/.env",
+        "command": "k6 run dist/apps/load-test/ws/main.js"
+      },
+      "dependsOn": ["build-ws"]
 
     }
   }

@@ -1,7 +1,10 @@
 import { io, Socket } from 'socket.io-client';
-import { getRandomUserData, testCreateUser } from '@ws-chat/test-utils';
-import { testConnectToSocket } from './sockeio-server-auth.test';
-import { userSocketCreateGroup } from './group-create.test';
+import {
+  getRandomUserData,
+  testConnectToSocket,
+  testCreateUser,
+  userSocketCreateGroup,
+} from '@ws-chat/test-utils';
 import { TransportTopics } from '../../../../chat-service/src/transports/transport-topics';
 import { UserJoinGroupPayload } from '../../../../chat-service/src/groups/interfaces/user-join-group-payload.interface';
 import { GroupMessageInterface } from '../../../../chat-service/src/groups/interfaces/group-message.interface';

@@ -39,10 +39,16 @@ export class GroupsRepository {
   }
 
   joinGroup(userId: string, groupId: string) {
-    return GroupModel.findByIdAndUpdate(groupId, {
-      $push: {
-        participantsId: new mongoose.Types.ObjectId(userId),
+    return GroupModel.findOneAndUpdate(
+      {
+        _id: groupId,
+        participantsId: { $ne: userId }, // Check t,
       },
-    }).exec();
+      {
+        $push: {
+          participantsId: new mongoose.Types.ObjectId(userId),
+        },
+      }
+    ).exec();
   }
 }

@@ -1,10 +1,11 @@
 import {
   getPromiseWithResolveCb,
   getRandomUserData,
+  testConnectToSocket,
   testCreateUser,
+  userSocketCreateGroup,
 } from '@ws-chat/test-utils';
 import { Socket } from 'socket.io-client';
-import { testConnectToSocket } from './sockeio-server-auth.test';
 import { TransportTopics } from '../../../../chat-service/src/transports/transport-topics';
 import { GroupMessageInterface } from '../../../../chat-service/src/groups/interfaces/group-message.interface';
 import { CreateGroupDto } from '../../../../chat-service/src/groups/dto/create-group.dto';
@@ -111,25 +112,3 @@ describe('group-create e2e', () => {
     await groupMessageSentPromise;
   });
 });
-
-export function userSocketCreateGroup(
-  socket: Socket,
-  participantsId: string[],
-  timeout: number
-): Promise<string> {
-  return new Promise((res, rej) => {
-    const timer = setTimeout(() => {
-      rej('group was not created in time');
-    }, timeout);
-    socket.once(TransportTopics.groupCreated, (createdGroupId) => {
-      clearTimeout(timer);
-      res(createdGroupId);
-    });
-
-    const createGroupData: CreateGroupDto = {
-      name: 'just a new group',
-      participantsId,
-    };
-    socket.emit(TransportTopics.createGroup, createGroupData);
-  });
-}

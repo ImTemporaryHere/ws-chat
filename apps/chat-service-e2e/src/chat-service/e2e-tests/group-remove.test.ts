@@ -2,10 +2,10 @@ import { io, Socket } from 'socket.io-client';
 import {
   getPromiseWithResolveCb,
   getRandomUserData,
+  testConnectToSocket,
   testCreateUser,
+  userSocketCreateGroup,
 } from '@ws-chat/test-utils';
-import { testConnectToSocket } from './sockeio-server-auth.test';
-import { userSocketCreateGroup } from './group-create.test';
 import { TransportTopics } from '../../../../chat-service/src/transports/transport-topics';
 import { GroupMessageInterface } from '../../../../chat-service/src/groups/interfaces/group-message.interface';
 

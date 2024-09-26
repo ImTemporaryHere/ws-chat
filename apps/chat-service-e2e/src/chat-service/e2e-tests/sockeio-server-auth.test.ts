@@ -1,5 +1,9 @@
 import { io, Socket } from 'socket.io-client';
-import { getRandomUserData, testCreateUser } from '@ws-chat/test-utils';
+import {
+  getRandomUserData,
+  testConnectToSocket,
+  testCreateUser,
+} from '@ws-chat/test-utils';
 
 const usersBaseUrl = `http://localhost:3000`;
 const baseUrl = `http://localhost:3001`;
@@ -57,29 +61,3 @@ describe('socket auth e2e', () => {
     });
   });
 });
-
-export async function testConnectToSocket({
-  baseUrl,
-  access_token,
-}: {
-  baseUrl: string;
-  access_token: string;
-}): Promise<Socket> {
-  const socket = io(baseUrl, {
-    reconnectionDelayMax: 10000,
-    extraHeaders: {
-      Authorization: access_token,
-    },
-  });
-
-  return new Promise((res, rej) => {
-    socket.on('connect', () => {
-      const interval = setInterval(() => {
-        if (socket.connected) {
-          clearInterval(interval);
-          return res(socket);
-        }
-      }, 10);
-    });
-  });
-}
