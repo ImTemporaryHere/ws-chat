@@ -1,6 +1,7 @@
 import { socketResponseType, socketResponseCode } from './constants';
 import { soResponse } from './types';
 import http from 'k6/http';
+import ws from 'k6/ws';
 
 /**
  * This sets up your socket client connection with the backend client
@@ -18,7 +19,7 @@ export function makeConnection(
     `http://${domain}/socket.io/?EIO=4&transport=polling&t=${hashDate()}`,
     { headers: customHeaders }
   );
-  console.log('res 1', res.body);
+
   const sid = getSid(res.body as string);
 
   const headers = {
@@ -32,13 +33,13 @@ export function makeConnection(
     `${socketResponseType.message}${socketResponseCode.connect}`,
     { headers }
   );
-  console.log('res 2', res.body);
+
   // also seems to be needed...
   res = http.get(
     `http://${domain}/socket.io/?EIO=4&transport=polling&t=${hashDate()}&sid=${sid}`,
     { headers }
   );
-  console.log('res 3', res.body);
+
   return sid;
 }
 
@@ -97,4 +98,16 @@ function getSid(parserEncoding: string): string {
   const match = /{.+?}/;
   const response = parserEncoding.match(match);
   return response ? JSON.parse(response[0]).sid : 'No Response';
+}
+
+export function socketSendMessage({
+  socket,
+  dataArgs,
+  eventName,
+}: {
+  socket: ws.Socket;
+  eventName: string;
+  dataArgs: Array<string | Record<string, any>>;
+}) {
+  socket.send(`42${JSON.stringify([eventName, ...dataArgs])}`);
 }

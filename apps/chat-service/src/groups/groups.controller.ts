@@ -1,8 +1,8 @@
-import { GroupsService } from "./groups.service";
-import { Socket } from "socket.io";
-import { CreateGroupDto } from "./dto/create-group.dto";
-import { SendGroupMessageDto } from "./dto/send-group-message.dto";
-import { TransportTopics } from "../transports/transport-topics";
+import { GroupsService } from './groups.service';
+import { Socket } from 'socket.io';
+import { CreateGroupDto } from './dto/create-group.dto';
+import { SendGroupMessageDto } from './dto/send-group-message.dto';
+import { TransportTopics } from '../transports/transport-topics';
 
 export class GroupsController {
   constructor(private readonly groupsService: GroupsService) {}
@@ -16,7 +16,7 @@ export class GroupsController {
       });
     } catch (e: any) {
       console.error(e);
-      socket.emit("group.create.error", e.toString());
+      socket.emit('group.create.error', e.toString());
     }
   }
 
@@ -25,7 +25,7 @@ export class GroupsController {
       await this.groupsService.removeGroup(socket.user.userId, groupId);
     } catch (e: any) {
       console.error(e);
-      socket.emit("group.remove.error", e.toString());
+      socket.emit('group.remove.error', e.toString());
     }
   }
 
@@ -34,7 +34,7 @@ export class GroupsController {
       await this.groupsService.leaveGroup(socket.user.userId, groupId);
     } catch (e: any) {
       console.error(e);
-      socket.emit("group.leave.error", e.toString());
+      socket.emit('group.leave.error', e.toString());
     }
   }
 
@@ -43,13 +43,13 @@ export class GroupsController {
       await this.groupsService.joinGroup(socket.user.userId, groupId);
     } catch (e: any) {
       console.error(e);
-      socket.emit("group.join.error", e.toString());
+      socket.emit('group.join.error', e.toString());
     }
   }
 
   async sendMessageToGroup(socket: Socket, data: SendGroupMessageDto) {
     try {
-      await this.groupsService.sendMessageToGroup({
+      this.groupsService.sendMessageToGroup({
         ...data,
         senderId: socket.user.userId,
       });

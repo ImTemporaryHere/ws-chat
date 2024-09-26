@@ -1,6 +1,6 @@
-import { GroupMessageInterface } from "../groups/interfaces/group-message.interface";
-import { TransportTopics } from "./transport-topics";
-import { UserJoinGroupPayload } from "../groups/interfaces/user-join-group-payload.interface";
+import { TransportTopics } from './transport-topics';
+import { UserJoinGroupPayload } from '../groups/interfaces/user-join-group-payload.interface';
+import { GroupMessageInterface } from '../groups/interfaces/group-message.interface';
 
 export interface Transport {
   notifyUser(params: {

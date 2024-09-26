@@ -10,6 +10,7 @@ export function registerGroupHandlers(
 ) {
   socket.on(TransportTopics.createGroup, async (data: CreateGroupDto) => {
     console.log(new Date(), TransportTopics.createGroup, data);
+    // await new Promise((resolve) => setTimeout(resolve, 5000));
     await groupsController.createGroup(socket, data);
   });
 

@@ -38,21 +38,12 @@
       }
     },
     "start": {
-      "executor": "@nx/js:node",
-      "defaultConfiguration": "development",
-      "dependsOn": ["build"],
+      "executor": "nx:run-commands",
       "options": {
-        "buildTarget": "load-test:build",
-        "runBuildTargetDependencies": false
+        "command": "k6 run dist/apps/load-test/main.js"
       },
-      "configurations": {
-        "development": {
-          "buildTarget": "load-test:build:development"
-        },
-        "production": {
-          "buildTarget": "load-test:build:production"
-        }
-      }
+      "dependsOn": ["build"]
+
     }
   }
 }

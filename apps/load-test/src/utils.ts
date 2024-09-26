@@ -18,8 +18,6 @@ export function testCreateUser(userData: User, baseUrl: string) {
     return null;
   }
 
-  console.log('response', response.body.toString());
-
   const responseBody = JSON.parse(response.body.toString());
   return {
     userId: responseBody.userId,

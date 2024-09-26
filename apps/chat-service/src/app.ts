@@ -31,6 +31,7 @@ export async function runApp() {
     });
 
     io.attachApp(app);
+    // io.attach(+port);
 
     container.register('AuthService', AuthService);
     //groups

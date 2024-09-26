@@ -8,6 +8,7 @@ import { testConnectToSocket } from './sockeio-server-auth.test';
 import { TransportTopics } from '../../../../chat-service/src/transports/transport-topics';
 import { GroupMessageInterface } from '../../../../chat-service/src/groups/interfaces/group-message.interface';
 import { CreateGroupDto } from '../../../../chat-service/src/groups/dto/create-group.dto';
+import { SendGroupMessageDto } from '../../../../chat-service/src/groups/dto/send-group-message.dto';
 
 const usersBaseUrl = `http://localhost:3000`;
 const baseUrl = `http://localhost:3001`;
@@ -98,10 +99,9 @@ describe('group-create e2e', () => {
         resolveGroupMessageSentCb();
       }
     );
-    const groupMessageToBeSent: GroupMessageInterface = {
+    const groupMessageToBeSent: SendGroupMessageDto = {
       message: secondUserGroupMessage,
       groupId: groupId,
-      senderId: secondUserId,
     };
     secondUserSocket.emit(
       TransportTopics.sendGroupMessage,

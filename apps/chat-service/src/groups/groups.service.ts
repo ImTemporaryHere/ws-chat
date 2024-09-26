@@ -1,13 +1,14 @@
-import { GroupsRepository } from "./groups.repository";
-import { ICreateGroup } from "./interfaces/create-group.interface";
-import { Transport } from "../transports/transport";
-import { GroupMessageInterface } from "./interfaces/group-message.interface";
-import { TransportTopics } from "../transports/transport-topics";
+import { GroupsRepository } from './groups.repository';
+import { ICreateGroup } from './interfaces/create-group.interface';
+import { Transport } from '../transports/transport';
+import { TransportTopics } from '../transports/transport-topics';
+import { SendGroupMessageDto } from './dto/send-group-message.dto';
+import { GroupMessageInterface } from './interfaces/group-message.interface';
 
 export class GroupsService {
   constructor(
     private readonly groupsRepository: GroupsRepository,
-    private readonly transport: Transport,
+    private readonly transport: Transport
   ) {}
 
   async createGroup(params: ICreateGroup) {
@@ -50,8 +51,8 @@ export class GroupsService {
     this.transport.leaveGroup(userId, groupId);
     this.sendMessageToGroup({
       groupId,
-      senderId: groupId,
       message: `user ${userId} left the group`,
+      senderId: 'system',
     });
     await this.groupsRepository.leaveGroup(userId, groupId);
   }

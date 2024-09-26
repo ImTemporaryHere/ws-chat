@@ -1,120 +1,139 @@
 import ws from 'k6/ws';
-import { check } from 'k6';
-import { makeConnection } from './libs/socket-io';
+import { check, sleep } from 'k6';
+import { makeConnection, socketSendMessage } from './libs/socket-io';
 import { checkForEventMessages } from './libs/socket-io';
-import { socketResponseCode, socketResponseType } from './libs/constants';
 import { Trend } from 'k6/metrics';
 import { testCreateUser, getRandomUserData } from './utils';
 import { TransportTopics } from '../../chat-service/src/transports/transport-topics';
 import { CreateGroupDto } from '../../chat-service/src/groups/dto/create-group.dto';
+import { SendGroupMessageDto } from '../../chat-service/src/groups/dto/send-group-message.dto';
 
 export const options = {
-  vus: 1, // Number of virtual users
-  // duration: '3s',
-  iterations: 1, // Run only one iteration
+  vus: 100, // Number of virtual users
+  duration: '3s',
+  // iterations: 1, // Run only one iteration
   tags: {
     testName: 'socketsio poc',
   },
 };
 
 // this trend will show up in the k6 output results
-let messageTime = new Trend('socketio_message_duration_ms');
+const messageTime = new Trend('socketio_message_response_time');
 
 export default async function startTesting() {
   const usersServiceBaseUrl = 'http://localhost:3000';
   const chatServiceDomain = `localhost:3001`;
 
-  const firstUserData = testCreateUser(
-    getRandomUserData(),
-    usersServiceBaseUrl
-  );
-
-  // const secondUserData =  testCreateUser(
-  //   getRandomUserData(),
-  //   usersServiceBaseUrl
-  // );
-
-  let startTime = 0;
-  let endTime = 0;
-
+  const data = testCreateUser(getRandomUserData(), usersServiceBaseUrl);
   const sid = makeConnection(chatServiceDomain, {
-    Authorization: firstUserData.accessToken,
+    Authorization: data.accessToken,
   });
-
   // Let's do some websockets
-  const url = `ws://${chatServiceDomain}/socket.io/?EIO=4&transport=websocket&sid=${sid}`;
+  const wsUrl = `ws://${chatServiceDomain}/socket.io/?EIO=4&transport=websocket&sid=${sid}`;
 
-  const response = ws.connect(
-    url,
+  ws.connect(
+    wsUrl,
     {
       headers: {
-        Authorization: firstUserData.accessToken,
+        Authorization: data.accessToken,
       },
     },
-    function (socket) {
-      socket.on('open', function open() {
-        console.log('connected');
-        socket.send('2probe');
-        socket.send('5');
-        socket.send('3');
-
-        // send an event message
-        startTime = Date.now();
-
-        const createGroupData: CreateGroupDto = {
-          name: 'just a new group',
-          participantsId: [],
-        };
-
-        socket.send(
-          `42${JSON.stringify([TransportTopics.createGroup, createGroupData])}`
-        );
-
-        // socket.setInterval(function timeout() {
-        //   socket.ping();
-        //   console.log('Pinging every 1sec (setInterval test)');
-        // }, 1000 * 5);
-      });
-
-      // This will constantly poll for any messages received
-      socket.on('message', function incoming(msg) {
-        // checking for event messages
-        checkForEventMessages<string[]>(msg, function (messageData) {
-          endTime = Date.now();
-          console.log(`
-          I've received an event message!
-          message=${messageData[1]}
-          vu=${__VU.toString()}
-          iter=${__ITER.toString()}
-          time=${Date.now().toString()}
-        `);
-        });
-      });
-
-      socket.on('close', function close() {
-        console.log('disconnected');
-      });
-
-      socket.on('error', function (e) {
-        console.log('error', JSON.stringify(e));
-        if (e.error() != 'websocket: close sent') {
-          console.log('An unexpected error occured: ', e.error());
-        }
-      });
-
-      socket.setTimeout(() => {
-        console.log('2 seconds passed, closing the socket');
-        socket.close();
-      }, 1000 * 2);
-    }
+    socketConnectHandler
   );
 
-  check(response, { 'status is 101': (r) => r && r.status === 101 });
+  // check(response, { 'status is 101': (r) => r && r.status === 101 });
 
-  // Log message time
-  messageTime.add(endTime - startTime);
+  // Sleep to allow for response time
+  // sleep(2);
 
-  await new Promise((resolve) => {
-    setTimeout(resolve, 2000);
-  });
+  function socketConnectHandler(socket: ws.Socket) {
+    socket.setTimeout(() => {
+      console.warn('timeout , closing socket');
+      socket.close();
+    }, 1000);
+
+    socket.on(
+      'open',
+      socketOpenHandler({
+        socket: socket,
+      })
+    );
+
+    // This will constantly poll for any messages received
+    socket.on('message', socketIncomingMessageHandler({ socket: socket }));
+
+    socket.on('close', function close() {
+      // console.log('disconnected');
+    });
+
+    socket.on('error', function (e) {
+      console.log('error', e);
+      if (e.error() != 'websocket: close sent') {
+        console.log('An unexpected error occured: ', e.error());
+      }
+    });
+  }
+
+  function socketOpenHandler({ socket }: { socket: ws.Socket }) {
+    return () => {
+      // console.log('connected');
+      socket.send('2probe');
+      socket.send('5');
+      socket.send('3');
+
+      const createGroupData: CreateGroupDto = {
+        name: 'just a new group',
+        participantsId: [],
+      };
+
+      // send an event message
+      socketSendMessage({
+        socket,
+        eventName: TransportTopics.createGroup,
+        dataArgs: [createGroupData],
+      });
+    };
+  }
+
+  function socketIncomingMessageHandler({ socket }: { socket: ws.Socket }) {
+    let sentMessageTime = 0;
+    let createdGroupId = '';
+
+    return (msg: string) => {
+      // checking for event messages
+      checkForEventMessages<string[]>(msg, (messageData) => {
+        // console.log('socketIncomingMessageHandler', messageData);
+
+        switch (messageData[0]) {
+          case TransportTopics.groupCreated: {
+            createdGroupId = messageData[1];
+
+            const groupMessageToBeSent: SendGroupMessageDto = {
+              message: 'dummy message',
+              groupId: createdGroupId,
+            };
+
+            sentMessageTime = Date.now();
+            socketSendMessage({
+              socket,
+              eventName: TransportTopics.sendGroupMessage,
+              dataArgs: [groupMessageToBeSent],
+            });
+
+            break;
+          }
+
+          case TransportTopics.groupMessageSent: {
+            if ((messageData[1] as any).groupId === createdGroupId) {
+              messageTime.add(Date.now() - sentMessageTime);
+
+              socket.close();
+            }
+
+            break;
+          }
+        }
+      });
+    };
+  }
 }
